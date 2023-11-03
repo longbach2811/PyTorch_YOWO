@@ -49,22 +49,17 @@ def run(args, d_cfg, model, device, transform, class_names):
     save_path = os.path.join(args.save_folder, 'ava_video')
     os.makedirs(save_path, exist_ok=True)
 
-    # path to video
-    path_to_video = os.path.join(d_cfg['data_root'], 'videos_15min', args.video)
-
     # video
-    video = cv2.VideoCapture(path_to_video)
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    save_size = (640, 480)
-    save_name = os.path.join(save_path, 'detection.avi')
-    fps = 15.0
-    out = cv2.VideoWriter(save_name, fourcc, fps, save_size)
+    video = cv2.VideoCapture(args.video)
+    frame_width = int(video.get(3))
+    frame_height = int(video.get(4))
+    out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc(*'DIVX'), 10, (frame_width,frame_height))
 
     video_clip = []
-    while(True):
+    while(video.isOpened()):
         ret, frame = video.read()
         
-        if ret:
+        if ret==True:
             # to PIL image
             frame_pil = Image.fromarray(frame.astype(np.uint8))
 

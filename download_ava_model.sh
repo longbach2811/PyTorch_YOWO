@@ -1,0 +1,1 @@
+wget https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/yowo_ava_v2.2_K32_21.6.pth

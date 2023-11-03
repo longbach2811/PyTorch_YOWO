@@ -98,32 +98,27 @@ def multi_hot_vis(args, frame, out_bboxes, orig_w, orig_h, class_names, act_pose
 @torch.no_grad()
 def detect(args, d_cfg, model, device, transform, class_names, class_colors):
     # path to save 
-    save_path = os.path.join(args.save_folder, 'demo', 'videos')
-    os.makedirs(save_path, exist_ok=True)
+    # save_path = os.path.join(args.save_folder, 'demo', 'videos')
+    # os.makedirs(save_path, exist_ok=True)
 
-    # path to video
-    path_to_video = os.path.join(args.video)
+    # # path to video
+    # path_to_video = os.path.join(args.video)
 
     # video
-    video = cv2.VideoCapture(path_to_video)
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    save_size = (640, 480)
-    save_name = os.path.join(save_path, 'detection.avi')
-    fps = 20.0
-    out = cv2.VideoWriter(save_name, fourcc, fps, save_size)
+    video = cv2.VideoCapture(args.video)
+    frame_width = int(video.get(3))
+    frame_height = int(video.get(4))
+    out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc(*'DIVX'), 10, (frame_width,frame_height))
 
     # run
     video_clip = []
     image_list = []
-    while(True):
+    while(video.isOpened()):
         ret, frame = video.read()
         
-        if ret:
+        if ret == True:
             # to RGB
-            frame_rgb = frame[..., (2, 1, 0)]
-
-            # to PIL image
-            frame_pil = Image.fromarray(frame_rgb.astype(np.uint8))
+            frame_pil = Image.fromarray(frame.astype(np.uint8))
 
             # prepare
             if len(video_clip) <= 0:
@@ -181,8 +176,8 @@ def detect(args, d_cfg, model, device, transform, class_names, class_colors):
                     class_colors=class_colors
                     )
             # save
-            frame_resized = cv2.resize(frame, save_size)
-            out.write(frame_resized)
+            # frame_resized = cv2.resize(frame, save_size)
+            out.write(frame)
 
             if args.gif:
                 gif_resized = cv2.resize(frame, (160, 120))
@@ -202,11 +197,11 @@ def detect(args, d_cfg, model, device, transform, class_names, class_colors):
     cv2.destroyAllWindows()
 
     # generate GIF
-    if args.gif:
-        save_name = os.path.join(save_path, 'detect.gif')
-        print('generating GIF ...')
-        imageio.mimsave(save_name, image_list, fps=fps)
-        print('GIF done: {}'.format(save_name))
+    # if args.gif:
+    #     save_name = os.path.join(save_path, 'detect.gif')
+    #     print('generating GIF ...')
+    #     imageio.mimsave(save_name, image_list, fps=fps)
+    #     print('GIF done: {}'.format(save_name))
 
 
 if __name__ == '__main__':
