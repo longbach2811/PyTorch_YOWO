@@ -50,7 +50,7 @@ def ucf_jhmdb_eval(args, d_cfg, model, transform, collate_fn):
     if args.cal_frame_mAP:
         # Frame mAP evaluator
         evaluator = UCF_JHMDB_Evaluator(
-            data_root=d_cfg['data_root'],
+            data_root=d_cfg['eval_root'],
             dataset=args.dataset,
             model_name=args.version,
             metric='fmap',
@@ -70,7 +70,7 @@ def ucf_jhmdb_eval(args, d_cfg, model, transform, collate_fn):
     elif args.cal_video_mAP:
         # Video mAP evaluator
         evaluator = UCF_JHMDB_Evaluator(
-            data_root=d_cfg['data_root'],
+            data_root=d_cfg['eval_root'],
             dataset=args.dataset,
             model_name=args.version,
             metric='vmap',

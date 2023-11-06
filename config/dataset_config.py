@@ -5,8 +5,8 @@ dataset_config = {
     'ucf24': {
         # dataset
         'data_root': 'ucf24',
-        'eval_root': 'D:/python_work/spatial-temporal_action_detection/dataset/ucf24',
-        'gt_folder': './evaluator/groundtruths_ucf_jhmdb/groundtruths_ucf/',
+        'eval_root': 'ucf24',
+        'gt_folder': 'ucf24/labels',
         # input size
         'train_size': 224,
         'test_size': 224,

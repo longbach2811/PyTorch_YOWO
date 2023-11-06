@@ -251,7 +251,7 @@ if __name__ == '__main__':
     import cv2
     from transforms import Augmentation, BaseTransform
 
-    data_root = 'D:/python_work/spatial-temporal_action_detection/dataset/ucf24'
+    data_root = '../ucf24'
     dataset = 'ucf24'
     is_train = True
     img_size = 224
@@ -264,59 +264,82 @@ if __name__ == '__main__':
         'saturation': 1.5,
         'exposure': 1.5
     }
-    transform = Augmentation(
-        img_size=img_size,
-        pixel_mean=trans_config['pixel_mean'],
-        pixel_std=trans_config['pixel_std'],
-        jitter=trans_config['jitter'],
-        saturation=trans_config['saturation'],
-        exposure=trans_config['exposure']
-        )
+    # transform = Augmentation(
+    #     img_size=img_size,
+    #     pixel_mean=trans_config['pixel_mean'],
+    #     pixel_std=trans_config['pixel_std'],
+    #     jitter=trans_config['jitter'],
+    #     saturation=trans_config['saturation'],
+    #     exposure=trans_config['exposure']
+    #     )
+
+    import torchvision.transforms as tf
+
     # transform = BaseTransform(
     #     img_size=img_size,
     #     pixel_mean=trans_config['pixel_mean'],
     #     pixel_std=trans_config['pixel_std']
     #     )
 
+    transforms = tf.Compose([
+        tf.RandomResizedCrop(size=(224, 224)),
+        tf.RandomHorizontalFlip(p=0.5),
+        # tf.ToDtype(torch.float32, scale=True),
+        tf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        tf.ToTensor()
+    ])
     train_dataset = UCF_JHMDB_Dataset(
         data_root=data_root,
         dataset=dataset,
         img_size=img_size,
-        transform=transform,
+        transform=transforms,
         is_train=is_train,
         len_clip=len_clip,
         sampling_rate=1
     )
+    print(f"Length train: {len(train_dataset)}")
 
-    print(len(train_dataset))
+    test_dataset = UCF_JHMDB_Dataset(
+        data_root=data_root,
+        dataset=dataset,
+        img_size=img_size,
+        transform=transforms,
+        is_train=False,
+        len_clip=len_clip,
+        sampling_rate=1
+    )
+    
+    print(f"Length test: {len(test_dataset)}")
+
+    print(f"Total length: {len(train_dataset) + len(test_dataset)}")
+
     std = trans_config['pixel_std']
     mean = trans_config['pixel_mean']
-    for i in range(len(train_dataset)):
-        frame_id, video_clip, target = train_dataset[i]
-        key_frame = video_clip[:, -1, :, :]
+    # for i in range(len(train_dataset)):
+    #     frame_id, video_clip, target = train_dataset[i]
+    #     key_frame = video_clip[:, -1, :, :]
 
-        key_frame = key_frame.permute(1, 2, 0).numpy()
-        key_frame = ((key_frame * std + mean) * 255).astype(np.uint8)
-        H, W, C = key_frame.shape
+    #     key_frame = key_frame.permute(1, 2, 0).numpy()
+    #     key_frame = ((key_frame * std + mean) * 255).astype(np.uint8)
+    #     H, W, C = key_frame.shape
 
-        key_frame = key_frame.copy()
-        bboxes = target['boxes']
-        labels = target['labels']
+    #     key_frame = key_frame.copy()
+    #     bboxes = target['boxes']
+    #     labels = target['labels']
 
-        for box, cls_id in zip(bboxes, labels):
-            x1, y1, x2, y2 = box
-            x1 = int(x1 * W)
-            y1 = int(y1 * H)
-            x2 = int(x2 * W)
-            y2 = int(y2 * H)
-            key_frame = cv2.rectangle(key_frame, (x1, y1), (x2, y2), (255, 0, 0))
+    #     for box, cls_id in zip(bboxes, labels):
+    #         x1, y1, x2, y2 = box
+    #         x1 = int(x1 * W)
+    #         y1 = int(y1 * H)
+    #         x2 = int(x2 * W)
+    #         y2 = int(y2 * H)
+    #         key_frame = ctf.rectangle(key_frame, (x1, y1), (x2, y2), (255, 0, 0))
 
         
-        # # PIL show
-        # image = Image.fromarray(image.astype(np.uint8))
-        # image.show()
+    #     # # PIL show
+    #     # image = Image.fromarray(image.astype(np.uint8))
+    #     # image.show()
 
-        # cv2 show
-        cv2.imshow('key frame', key_frame[..., (2, 1, 0)])
-        cv2.waitKey(0)
-        
+    #     # ctf show
+    #     # ctf.imshow('key frame', key_frame[..., (2, 1, 0)])
+    #     ctf.waitKey(0)
