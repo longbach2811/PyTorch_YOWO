@@ -108,7 +108,7 @@ def detect(args, d_cfg, model, device, transform, class_names, class_colors):
     video = cv2.VideoCapture(args.video)
     frame_width = int(video.get(3))
     frame_height = int(video.get(4))
-    out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc(*'DIVX'), 10, (frame_width,frame_height))
+    out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc(*'DIVX'), 30, (frame_width,frame_height))
 
     # run
     video_clip = []
@@ -141,6 +141,7 @@ def detect(args, d_cfg, model, device, transform, class_names, class_colors):
             # inference
             outputs = model(x)
             print("inference time ", time.time() - t0, "s")
+            # print(outputs)
 
             # vis detection results
             if args.dataset in ['ava_v2.2']:
@@ -161,10 +162,14 @@ def detect(args, d_cfg, model, device, transform, class_names, class_colors):
                 batch_scores, batch_labels, batch_bboxes = outputs
                 # batch size = 1
                 scores = batch_scores[0]
+                print(f"Score: {scores}")
                 labels = batch_labels[0]
+                print(f"Labels: {labels}")
                 bboxes = batch_bboxes[0]
+                print(f"Raw bbox: {bboxes}")
                 # rescale
                 bboxes = rescale_bboxes(bboxes, [orig_w, orig_h])
+                print(f"Mapping bbox: {bboxes}")
                 # one hot
                 frame = vis_detection(
                     frame=frame,
@@ -175,6 +180,7 @@ def detect(args, d_cfg, model, device, transform, class_names, class_colors):
                     class_names=class_names,
                     class_colors=class_colors
                     )
+                print("-"*69)
             # save
             # frame_resized = cv2.resize(frame, save_size)
             out.write(frame)
